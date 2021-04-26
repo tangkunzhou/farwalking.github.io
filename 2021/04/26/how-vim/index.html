@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Vim的配置参数记录">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vim配置参数详解">
+<meta property="og:url" content="http://example.com/2021/04/26/how-vim/index.html">
+<meta property="og:site_name" content="xTang&#39;s Blog">
+<meta property="og:description" content="Vim的配置参数记录">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-04-26T12:39:36.000Z">
+<meta property="article:modified_time" content="2021-04-26T12:51:22.072Z">
+<meta property="article:author" content="xTang">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="编程">
+<meta property="article:tag" content="Vim">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2021/04/26/how-vim/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Vim配置参数详解 | xTang's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">xTang's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/04/26/how-vim/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/cxy.png">
+      <meta itemprop="name" content="xTang">
+      <meta itemprop="description" content="分享编程知识，记录心得感悟">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xTang's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Vim配置参数详解
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-04-26 20:39:36 / 修改时间：20:51:22" itemprop="dateCreated datePublished" datetime="2021-04-26T20:39:36+08:00">2021-04-26</time>
+            </span>
+
+          
+            <div class="post-description">Vim的配置参数记录</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>对于软件配置，原则上来说第一次配置好后就不用再管，不需要去学，选择需要的功能配置即可，久而久之就会有自己习惯的配置方式。为避免以后从头配置费事儿，故备份下来。</p>
+</blockquote>
+<h3 id="1-我的Vim配置"><a href="#1-我的Vim配置" class="headerlink" title="1.我的Vim配置"></a>1.我的Vim配置</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">&quot; 不与vi兼容 高亮 uft8 256色</span><br><span class="line">set nocompatible</span><br><span class="line">syntax on</span><br><span class="line">set encoding&#x3D;utf-8  </span><br><span class="line">set t_Co&#x3D;256</span><br><span class="line"></span><br><span class="line">&quot; 自动对齐 tab转四个空格</span><br><span class="line">set autoindent</span><br><span class="line">set tabstop&#x3D;4</span><br><span class="line">set expandtab</span><br><span class="line">set softtabstop&#x3D;4</span><br><span class="line"></span><br><span class="line">&quot; --------------------------------------------------</span><br><span class="line">&quot; 以下部分可选 可通过命令临时设置</span><br><span class="line">” 显示行号</span><br><span class="line">set number</span><br><span class="line">&quot; 不显示行号</span><br><span class="line">set nonumber</span><br><span class="line">&quot; 高亮当前行</span><br><span class="line">set cursorline</span><br><span class="line"></span><br><span class="line">&quot; 行宽80 自动换行(不拆单词)</span><br><span class="line">set textwidth&#x3D;80</span><br><span class="line">set wrap</span><br><span class="line">set linebreak</span><br><span class="line"></span><br><span class="line">&quot; 括号配对高亮 搜索结果高亮</span><br><span class="line">set showmatch</span><br><span class="line">set hlsearch</span><br><span class="line"></span><br><span class="line">filetype indent on		&quot; 文件类型检查</span><br><span class="line">set incsearch			&quot; 搜索时自动跳转至第一个结果</span><br><span class="line">set ignorecase			&quot; 搜索忽略大小写</span><br><span class="line">set spell spelllang&#x3D;en_us		&quot; 单词拼写检查</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-vim配置及说明"><a href="#2-vim配置及说明" class="headerlink" title="2.vim配置及说明"></a>2.vim配置及说明</h3><p><strong>参考链接：<a target="_blank" rel="noopener" href="http://www.ruanyifeng.com/blog/2018/09/vimrc.html">阮一峰的网络日志：Vim 配置入门</a></strong><br><strong>说明</strong>：原文不方便复制，所以整理了一下。注释前面加了 <code>&quot;</code>，方便复制。</p>
+<h4 id="2-1-基本配置"><a href="#2-1-基本配置" class="headerlink" title="2.1 基本配置"></a>2.1 基本配置</h4><p>配置文件位置：/etc/vim/vimrc</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">&quot; 不与vi命令兼容</span><br><span class="line">set nocompatible</span><br><span class="line"></span><br><span class="line">&quot; 打开语法高亮</span><br><span class="line">syntax on</span><br><span class="line"></span><br><span class="line">&quot; 在底部显示当前处于命令模式还是插入模式</span><br><span class="line">set showmode</span><br><span class="line"></span><br><span class="line">&quot; 命令模式下 在底部显示当前键入的指令</span><br><span class="line">set showcmd</span><br><span class="line"></span><br><span class="line">&quot; 支持使用鼠标</span><br><span class="line">set mouse&#x3D;a</span><br><span class="line"></span><br><span class="line">&quot; 使用 utf-8 编码</span><br><span class="line">set encoding&#x3D;utf-8  </span><br><span class="line"></span><br><span class="line">&quot; 启用256色</span><br><span class="line">set t_Co&#x3D;256</span><br><span class="line"></span><br><span class="line">&quot; 开启文件类型检查 并且载入与该类型对应的缩进规则</span><br><span class="line">filetype indent on</span><br></pre></td></tr></table></figure>
+<h4 id="2-2-缩进"><a href="#2-2-缩进" class="headerlink" title="2.2 缩进"></a>2.2 缩进</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&quot; 按下回车键后 下一行的缩进会自动跟上一行的缩进保持一致</span><br><span class="line">set autoindent</span><br><span class="line"></span><br><span class="line">&quot; 按下 Tab 键时 Vim 显示的空格数</span><br><span class="line">set tabstop&#x3D;2</span><br><span class="line"></span><br><span class="line">&quot; 在文本上按下&gt;&gt;(增加一级缩进) &lt;&lt;(取消一级缩进) 或者 &#x3D;&#x3D;(取消全部缩进)时 每一级的字符数</span><br><span class="line">set shiftwidth&#x3D;4</span><br><span class="line"></span><br><span class="line">&quot; 由于 Tab 键在不同的编辑器缩进不一致 该设置自动将 Tab 转为空格</span><br><span class="line">set expandtab</span><br><span class="line"></span><br><span class="line">&quot; Tab 转为多少个空格</span><br><span class="line">set softtabstop&#x3D;2</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-3-外观"><a href="#2-3-外观" class="headerlink" title="2.3 外观"></a>2.3 外观</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">&quot; 显示行号</span><br><span class="line">set number</span><br><span class="line"></span><br><span class="line">&quot; 显示光标所在的当前行的行号 其他行都为相对于该行的相对行号</span><br><span class="line">set relativenumber</span><br><span class="line"></span><br><span class="line">&quot; 光标所在的当前行高亮</span><br><span class="line">set cursorline</span><br><span class="line"></span><br><span class="line">&quot; 设置行宽 即一行显示多少个字符</span><br><span class="line">set textwidth&#x3D;80</span><br><span class="line"></span><br><span class="line">&quot; 自动折行 即太长的行分成几行显示</span><br><span class="line">set wrap</span><br><span class="line">&quot; 关闭自动折行</span><br><span class="line">set nowrap</span><br><span class="line">&quot; 只有遇到指定的符号(比如空格、连词号和其他标点符号)才发生折行 </span><br><span class="line">&quot; 也就是说 不会在单词内部折行</span><br><span class="line">set linebreak</span><br><span class="line"></span><br><span class="line">&quot; 指定折行处与编辑窗口的右边缘之间空出的字符数</span><br><span class="line">set wrapmargin&#x3D;2</span><br></pre></td></tr></table></figure>
+<h4 id="2-4-搜索"><a href="#2-4-搜索" class="headerlink" title="2.4 搜索"></a>2.4 搜索</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&quot; 光标遇到圆括号、方括号、大括号时 自动高亮对应的另一个圆括号、方括号和大括号</span><br><span class="line">set showmatch</span><br><span class="line"></span><br><span class="line">&quot; 搜索时 高亮显示匹配结果</span><br><span class="line">set hlsearch</span><br><span class="line"></span><br><span class="line">&quot; 输入搜索模式时 每输入一个字符就自动跳到第一个匹配的结果</span><br><span class="line">set incsearch</span><br><span class="line"></span><br><span class="line">&quot; 搜索时忽略大小写</span><br><span class="line">set ignorecase</span><br><span class="line"></span><br><span class="line">&quot; 如果同时打开了ignorecase 那么对于只有一个大写字母的搜索词 将大小写敏感</span><br><span class="line">&quot; 其他情况都是大小写不敏感</span><br><span class="line">&quot; 比如 搜索Test时 将不匹配test  搜索test时 将匹配Test</span><br></pre></td></tr></table></figure>
+<h4 id="2-5-编辑"><a href="#2-5-编辑" class="headerlink" title="2.5 编辑"></a>2.5 编辑</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">&quot; 打开英语单词的拼写检查</span><br><span class="line">set spell spelllang&#x3D;en_us</span><br><span class="line"></span><br><span class="line">&quot; 不创建备份文件</span><br><span class="line">&quot; 默认情况下 文件保存时会额外创建一个备份文件 它的文件名是在原文件名的末尾 再添加一个波浪号 ~</span><br><span class="line">set nobackup</span><br><span class="line"></span><br><span class="line">&quot; 不创建交换文件</span><br><span class="line">set noswapfile</span><br><span class="line"></span><br><span class="line">&quot; Vim 需要记住多少次历史操作</span><br><span class="line">set history&#x3D;1000</span><br><span class="line"></span><br><span class="line">&quot; 打开文件监视</span><br><span class="line">&quot; 如果在编辑过程中文件发生外部改变（比如被别的编辑器编辑了），就会发出提示</span><br><span class="line">set autoread</span><br><span class="line"></span><br><span class="line">&quot; 如果行尾有多余的空格（包括 Tab 键）该配置将让这些空格显示成可见的小方块</span><br><span class="line">set listchars&#x3D;tab:»■,trail:■</span><br><span class="line">set list</span><br><span class="line"></span><br><span class="line">&quot; 命令模式下 底部操作指令按下 Tab 键自动补全</span><br><span class="line">&quot; 第一次按下Tab 会显示所有匹配的操作指令的清单</span><br><span class="line">&quot; 第二次按下Tab 会依次选择各个指令</span><br><span class="line">set wildmenu</span><br><span class="line">set wildmode&#x3D;longest:list,full</span><br></pre></td></tr></table></figure>
+<link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Linux/" rel="tag"><i class="fa fa-tag"></i> Linux</a>
+              <a href="/tags/%E7%BC%96%E7%A8%8B/" rel="tag"><i class="fa fa-tag"></i> 编程</a>
+              <a href="/tags/Vim/" rel="tag"><i class="fa fa-tag"></i> Vim</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/04/26/about/" rel="prev" title="认识 xTang's Blog">
+      <i class="fa fa-chevron-left"></i> 认识 xTang's Blog
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/04/26/how-ubuntu-user/" rel="next" title="Ubuntu创建用户">
+      Ubuntu创建用户 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%88%91%E7%9A%84Vim%E9%85%8D%E7%BD%AE"><span class="nav-number">1.</span> <span class="nav-text">1.我的Vim配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-vim%E9%85%8D%E7%BD%AE%E5%8F%8A%E8%AF%B4%E6%98%8E"><span class="nav-number">2.</span> <span class="nav-text">2.vim配置及说明</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-%E5%9F%BA%E6%9C%AC%E9%85%8D%E7%BD%AE"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 基本配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-%E7%BC%A9%E8%BF%9B"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 缩进</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3-%E5%A4%96%E8%A7%82"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 外观</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-4-%E6%90%9C%E7%B4%A2"><span class="nav-number">2.4.</span> <span class="nav-text">2.4 搜索</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-5-%E7%BC%96%E8%BE%91"><span class="nav-number">2.5.</span> <span class="nav-text">2.5 编辑</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="xTang"
+      src="/images/cxy.png">
+  <p class="site-author-name" itemprop="name">xTang</p>
+  <div class="site-description" itemprop="description">分享编程知识，记录心得感悟</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/xtangyes" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;xtangyes" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:farwalking@163.com" title="E-Mail → mailto:farwalking@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xTang</span>
+</div>
+  <div class="powered-by">2021年04月26日
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  <script defer src="/lib/three/three.min.js"></script>
+    <script defer src="/lib/three/three-waves.min.js"></script>
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

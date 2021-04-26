@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="在Ubuntu Server下安装Docker，部署Kubernetes以及使用Nvidia-Docker配置显卡">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Ubuntu Server部署K8S">
+<meta property="og:url" content="http://example.com/2021/04/26/deploy-kubernetes/index.html">
+<meta property="og:site_name" content="xTang&#39;s Blog">
+<meta property="og:description" content="在Ubuntu Server下安装Docker，部署Kubernetes以及使用Nvidia-Docker配置显卡">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-04-26T13:01:20.000Z">
+<meta property="article:modified_time" content="2021-04-26T13:08:48.871Z">
+<meta property="article:author" content="xTang">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="K8S">
+<meta property="article:tag" content="Docker">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2021/04/26/deploy-kubernetes/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Ubuntu Server部署K8S | xTang's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">xTang's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/04/26/deploy-kubernetes/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/cxy.png">
+      <meta itemprop="name" content="xTang">
+      <meta itemprop="description" content="分享编程知识，记录心得感悟">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xTang's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Ubuntu Server部署K8S
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-04-26 21:01:20 / 修改时间：21:08:48" itemprop="dateCreated datePublished" datetime="2021-04-26T21:01:20+08:00">2021-04-26</time>
+            </span>
+
+          
+            <div class="post-description">在Ubuntu Server下安装Docker，部署Kubernetes以及使用Nvidia-Docker配置显卡</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="1-安装配置操作系统"><a href="#1-安装配置操作系统" class="headerlink" title="1.安装配置操作系统"></a>1.安装配置操作系统</h3><h4 id="1-1-工具准备"><a href="#1-1-工具准备" class="headerlink" title="1.1 工具准备"></a>1.1 工具准备</h4><ul>
+<li><p>主机</p>
+</li>
+<li><p>U盘</p>
+</li>
+<li><p>Ubuntu18.04 server 【<a target="_blank" rel="noopener" href="https://releases.ubuntu.com/">官网地址</a>】</p>
+</li>
+<li><p>Rufus【<a target="_blank" rel="noopener" href="http://rufus.ie/">官网地址</a>】</p>
+</li>
+</ul>
+<h4 id="1-2-安装系统"><a href="#1-2-安装系统" class="headerlink" title="1.2 安装系统"></a>1.2 安装系统</h4><p>安装操作系统简单，如果你是安装服务器版本，仅需要<strong>注意</strong>的是安装的时候换一下源：<a target="_blank" rel="noopener" href="http://mirrors.aliyun.com/ubuntu%E3%80%82%E5%A6%82%E6%9E%9C%E6%98%AF%E6%A1%8C%E9%9D%A2%E7%89%88%EF%BC%8C%E5%AE%89%E8%A3%85%E5%AE%8C%E4%B9%8B%E5%90%8E%E4%B9%9F%E9%9C%80%E8%A6%81%E6%8D%A2%E6%BA%90%E3%80%82">http://mirrors.aliyun.com/ubuntu。如果是桌面版，安装完之后也需要换源。</a></p>
+<h4 id="1-3-换源（如果之前没换）"><a href="#1-3-换源（如果之前没换）" class="headerlink" title="1.3 换源（如果之前没换）"></a>1.3 换源（如果之前没换）</h4><p><strong>换源</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo vim /etc/apt/sources.list</span><br></pre></td></tr></table></figure>
+
+<p>删除原来的源，并替换为以下内容。</p>
+<p><strong>ubuntu 18.04(bionic)  阿里云 源</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">deb http://mirrors.aliyun.com/ubuntu/ bionic main restricted universe multiverse</span><br><span class="line">deb-src http://mirrors.aliyun.com/ubuntu/ bionic main restricted universe multiverse</span><br><span class="line"></span><br><span class="line">deb http://mirrors.aliyun.com/ubuntu/ bionic-security main restricted universe multiverse</span><br><span class="line">deb-src http://mirrors.aliyun.com/ubuntu/ bionic-security main restricted universe multiverse</span><br><span class="line"></span><br><span class="line">deb http://mirrors.aliyun.com/ubuntu/ bionic-updates main restricted universe multiverse</span><br><span class="line">deb-src http://mirrors.aliyun.com/ubuntu/ bionic-updates main restricted universe multiverse</span><br><span class="line"></span><br><span class="line">deb http://mirrors.aliyun.com/ubuntu/ bionic-proposed main restricted universe multiverse</span><br><span class="line">deb-src http://mirrors.aliyun.com/ubuntu/ bionic-proposed main restricted universe multiverse</span><br><span class="line"></span><br><span class="line">deb http://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse</span><br><span class="line">deb-src http://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse</span><br></pre></td></tr></table></figure>
+
+<p><strong>更新软件源</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt update</span><br><span class="line">sudo apt upgrade</span><br></pre></td></tr></table></figure>
+
+<h4 id="1-4-配置openssh-server"><a href="#1-4-配置openssh-server" class="headerlink" title="1.4 配置openssh-server"></a>1.4 配置openssh-server</h4><p><strong>安装openssh-server</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install openssh-server</span><br></pre></td></tr></table></figure>
+
+<p><strong>开放端口并允许Root登陆</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo vim /etc/ssh/sshd_config</span><br></pre></td></tr></table></figure>
+
+<p>如果需要指定端口，需添加以下内容：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Port &lt;your-port&gt;</span><br><span class="line">PermitRootLogin yes</span><br><span class="line"></span><br><span class="line">e.g.</span><br><span class="line">Port 8848</span><br><span class="line">PermitRootLogin yes</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 若指定端口 ssh登陆时也需要使用 -p 参数指定相应端口</span></span><br></pre></td></tr></table></figure>
+
+<p>如果使用默认端口(22)，仅需添加以下内容：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PermitRootLogin yes</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-安装docker-ce"><a href="#2-安装docker-ce" class="headerlink" title="2.安装docker-ce"></a>2.安装docker-ce</h3><p><strong>不要使用apt直接安装docker</strong>，本文使用版本docker18（一般大版本对得上就没问题）</p>
+<h4 id="2-1-卸载旧版本docker"><a href="#2-1-卸载旧版本docker" class="headerlink" title="2.1 卸载旧版本docker"></a>2.1 卸载旧版本docker</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get remove docker docker-engine docker.io containerd runc</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-2-安装docker"><a href="#2-2-安装docker" class="headerlink" title="2.2 安装docker"></a>2.2 安装docker</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 先安装安装docker需要的工具</span></span><br><span class="line">sudo apt-get update</span><br><span class="line"></span><br><span class="line">sudo apt-get install \</span><br><span class="line">    apt-transport-https \</span><br><span class="line">    ca-certificates \</span><br><span class="line">    curl \</span><br><span class="line">    gnupg-agent \</span><br><span class="line">    software-properties-common</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 添加Docker的官方GPG密钥</span></span><br><span class="line">curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -</span><br><span class="line">sudo apt-key fingerprint 0EBFCD88</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 设置稳定的存储库</span></span><br><span class="line">sudo add-apt-repository \</span><br><span class="line">   &quot;deb [arch=amd64] https://download.docker.com/linux/ubuntu \</span><br><span class="line"><span class="meta">   $</span><span class="bash">(lsb_release -cs) \</span></span><br><span class="line"><span class="bash">   stable<span class="string">&quot;</span></span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 查询可选docker版本</span></span><br><span class="line">apt-cache madison docker-ce</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 会出现类似以下内容</span></span><br><span class="line">docker-ce | 5:18.09.9~3-0~ubuntu-bionic | https://download.docker.com/linux/ubuntu bionic/stable amd64 Packages</span><br><span class="line"> docker-ce | 5:18.09.8~3-0~ubuntu-bionic | https://download.docker.com/linux/ubuntu bionic/stable amd64 Packages</span><br><span class="line"> docker-ce | 5:18.09.7~3-0~ubuntu-bionic | https://download.docker.com/linux/ubuntu bionic/stable amd64 Packages</span><br><span class="line">  ...</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 安装指定版本docker</span></span><br><span class="line">sudo apt-get install docker-ce=&lt;VERSION_STRING&gt; docker-ce-cli=&lt;VERSION_STRING&gt; containerd.io</span><br><span class="line"><span class="meta">#</span><span class="bash"> 本文使用的安装命令</span></span><br><span class="line">sudo apt-get install docker-ce=5:19.03.14~3-0~ubuntu-bionic docker-ce-cli=5:19.03.14~3-0~ubuntu-bionic containerd.io</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-3-验证docker是否安装成功"><a href="#2-3-验证docker是否安装成功" class="headerlink" title="2.3 验证docker是否安装成功"></a>2.3 验证docker是否安装成功</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo docker run hello-world</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 成功会输出带 Hello from Docker! 字样的信息</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="2-4-docker换源及配置"><a href="#2-4-docker换源及配置" class="headerlink" title="2.4 docker换源及配置"></a>2.4 docker换源及配置</h4><p><strong>阿里云提供免费的镜像加速器</strong> 地址：<a target="_blank" rel="noopener" href="https://cr.console.aliyun.com/cn-hangzhou/instances/mirrors">https://cr.console.aliyun.com/cn-hangzhou/instances/mirrors</a></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 更换源</span></span><br><span class="line">sudo tee /etc/docker/daemon.json &lt;&lt;-&#x27;EOF&#x27;</span><br><span class="line">&#123;</span><br><span class="line">  &quot;registry-mirrors&quot;: [&quot;https://&lt;上面地址直达获取&gt;.mirror.aliyuncs.com&quot;]</span><br><span class="line">&#125;</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 添加用户到docker组 否则每次使用docker命令都需要加sudo</span></span><br><span class="line">sudo usermod -aG docker $USER</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 允许docker后台驻留</span></span><br><span class="line">sudo systemctl enable docker</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 重启生效</span></span><br><span class="line">sudo systemctl daemon-reload</span><br><span class="line">sudo systemctl restart docker</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-5-卸载docker"><a href="#2-5-卸载docker" class="headerlink" title="2.5 卸载docker"></a>2.5 卸载docker</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get purge docker-ce docker-ce-cli containerd.io</span><br><span class="line">sudo rm -rf /var/lib/docker</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-安装nvidia-docker（若需用显卡）"><a href="#3-安装nvidia-docker（若需用显卡）" class="headerlink" title="3.安装nvidia-docker（若需用显卡）"></a>3.安装nvidia-docker（若需用显卡）</h3><h4 id="3-1-卸载旧版本nvidia-docker"><a href="#3-1-卸载旧版本nvidia-docker" class="headerlink" title="3.1 卸载旧版本nvidia-docker"></a>3.1 卸载旧版本nvidia-docker</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get purge -y nvidia-docker</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-2-安装nvidia-docker"><a href="#3-2-安装nvidia-docker" class="headerlink" title="3.2 安装nvidia-docker"></a>3.2 安装nvidia-docker</h4><p><strong>添加到软件仓库</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">sudo vim /etc/hosts</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 添加以下内容 （解析nvidia.github.io）</span></span><br><span class="line">185.199.108.153		nvidia.github.io				  </span><br><span class="line">185.199.109.153		nvidia.github.io				  </span><br><span class="line">185.199.110.153		nvidia.github.io				  </span><br><span class="line">185.199.111.153		nvidia.github.io</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -</span><br><span class="line">distribution=$(. /etc/os-release;echo $ID$VERSION_ID)</span><br><span class="line"></span><br><span class="line">curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | \</span><br><span class="line">  sudo tee /etc/apt/sources.list.d/nvidia-docker.list</span><br><span class="line"><span class="meta">#</span><span class="bash"> apt 更新</span></span><br><span class="line">sudo apt-get update</span><br></pre></td></tr></table></figure>
+
+<p><strong>查看nvidia-docker与docker兼容的版本</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">apt-cache madison nvidia-docker2</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 部分输出信息</span></span><br><span class="line">nvidia-docker2 | 2.0.3+docker18.09.7-3 | https://nvidia.github.io/nvidia-docker/ubuntu18.04/amd64  Packages</span><br><span class="line">nvidia-docker2 | 2.0.3+docker18.09.6-3 | https://nvidia.github.io/nvidia-docker/ubuntu18.04/amd64  Packages</span><br><span class="line">nvidia-docker2 | 2.0.3+docker18.09.5-3 | https://nvidia.github.io/nvidia-docker/ubuntu18.04/amd64  Packages</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p><strong>查看依赖</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">apt-cache madison nvidia-container-runtime</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 部分输出信息</span></span><br><span class="line">nvidia-container-runtime | 2.0.0+docker18.09.7-3 | https://nvidia.github.io/nvidia-container-runtime/stable/ubuntu18.04/amd64  Packages</span><br><span class="line">nvidia-container-runtime | 2.0.0+docker18.09.6-3 | https://nvidia.github.io/nvidia-container-runtime/stable/ubuntu18.04/amd64  Packages</span><br><span class="line">nvidia-container-runtime | 2.0.0+docker18.09.5-3 | https://nvidia.github.io/nvidia-container-runtime/stable/ubuntu18.04/amd64  Packages</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p><strong>安装nvidia-docker及其依赖</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 安装命令</span></span><br><span class="line">sudo apt-get install -y nvidia-docker2=&lt;VERSION_STRING&gt; nvidia-container-runtime=&lt;VERSION_STRING&gt;</span><br><span class="line"><span class="meta">#</span><span class="bash"> 本文命令</span></span><br><span class="line">sudo apt-get install -y nvidia-docker2=2.3.0-1 nvidia-container-runtime=3.3.0-1</span><br></pre></td></tr></table></figure>
+
+<p><strong>查看nvida-docker版本</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nvidia-docker version</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-3-配置显卡"><a href="#3-3-配置显卡" class="headerlink" title="3.3 配置显卡"></a>3.3 配置显卡</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">sudo vim /etc/docker/daemon.json</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改内容如下 <span class="string">&quot;registry-mirrors&quot;</span>是阿里云容器镜像加速器的地址</span></span><br><span class="line">&#123;</span><br><span class="line">  &quot;registry-mirrors&quot;: [&quot;https://&lt;就是配置docker时的 不变&gt;.mirror.aliyuncs.com&quot;],</span><br><span class="line">  &quot;default-runtime&quot;: &quot;nvidia&quot;,</span><br><span class="line">  &quot;runtimes&quot;: &#123;</span><br><span class="line">    &quot;nvidia&quot;: &#123;</span><br><span class="line">      &quot;path&quot;: &quot;nvidia-container-runtime&quot;,</span><br><span class="line">      &quot;runtimeArgs&quot;: []</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 生效</span></span><br><span class="line">sudo pkill -SIGHUP dockerd</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-4-安装显卡驱动"><a href="#3-4-安装显卡驱动" class="headerlink" title="3.4 安装显卡驱动"></a>3.4 安装显卡驱动</h4><h5 id="第一种方法"><a href="#第一种方法" class="headerlink" title="第一种方法"></a>第一种方法</h5><p><strong>查看显卡型号</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install ubuntu-drivers-common</span><br><span class="line">ubuntu-drivers devices</span><br></pre></td></tr></table></figure>
+
+<p><strong>自动安装显卡驱动</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ubuntu-drivers autoinstall</span><br></pre></td></tr></table></figure>
+
+<p><strong>安装指定版本显卡驱动</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install &lt;Version&gt;</span><br><span class="line"></span><br><span class="line">e.g.</span><br><span class="line">sudo apt install nvidia-340</span><br></pre></td></tr></table></figure>
+
+<p><strong>查看显卡</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nvidia-smi</span><br></pre></td></tr></table></figure>
+
+
+
+<h5 id="第二种方法"><a href="#第二种方法" class="headerlink" title="第二种方法"></a>第二种方法</h5><p>到nvidia官网下载显卡相应的驱动[<a target="_blank" rel="noopener" href="https://www.nvidia.cn/">官网地址</a>]</p>
+<p><strong>安装依赖</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo dpkg --add-architecture i386</span><br><span class="line">sudo apt update</span><br><span class="line">sudo apt install build-essential libc6:i386</span><br></pre></td></tr></table></figure>
+
+<p><strong>禁用Ubuntu默认驱动</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">sudo bash -c &quot;echo blacklist nouveau &gt; /etc/modprobe.d/blacklist-nvidia-nouveau.conf&quot;</span><br><span class="line">sudo bash -c &quot;echo options nouveau modeset=0 &gt;&gt; /etc/modprobe.d/blacklist-nvidia-nouveau.conf&quot;</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 验证操作是否成功</span></span><br><span class="line">cat /etc/modprobe.d/blacklist-nvidia-nouveau.conf</span><br><span class="line"><span class="meta">#</span><span class="bash"> 得到以下输出</span></span><br><span class="line">blacklist nouveau</span><br><span class="line">options nouveau modeset=0</span><br></pre></td></tr></table></figure>
+
+<p><strong>重启操作系统</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo reboot</span><br></pre></td></tr></table></figure>
+
+<p><strong>解决 WARNING: Unable to find suitable destination to install 32-bit compatibility libraries</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo dpkg --add-architecture i386</span><br><span class="line">sudo apt update</span><br><span class="line">sudo apt install libc6:i386</span><br></pre></td></tr></table></figure>
+
+<p><strong>查看显卡</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nvidia-smi</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-安装cuda和cudnn（也是用显卡才装）"><a href="#4-安装cuda和cudnn（也是用显卡才装）" class="headerlink" title="4.安装cuda和cudnn（也是用显卡才装）"></a>4.安装cuda和cudnn（也是用显卡才装）</h3><h4 id="4-1-CUDA"><a href="#4-1-CUDA" class="headerlink" title="4.1 CUDA"></a>4.1 CUDA</h4><p><strong>以下过程需要注意版本号</strong></p>
+<p>根据操作系统下载对应的cuda（runfile）：<a target="_blank" rel="noopener" href="https://developer.nvidia.com/cuda-downloads">官网地址</a></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 安装cuda</span></span><br><span class="line">sudo chmod 777 cuda_10.2.2_linux.run</span><br><span class="line">sudo ./cuda_10.2.2_linux.run</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 配置环境变量</span></span><br><span class="line">sudo vim ~/.bashrc</span><br><span class="line"><span class="meta">#</span><span class="bash"> 添加以下内容</span></span><br><span class="line">export PATH=/usr/local/cuda-10.2/bin:$PATH</span><br><span class="line">export LD_LIBRARY_PATH=/usr/local/cuda-10.2/lib64:$LD_LIBRARY_PATH</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 使配置生效</span></span><br><span class="line">source ~/.bashrc</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 查看cuda版本</span></span><br><span class="line">cat /usr/local/cuda/version.txt</span><br><span class="line"><span class="meta">#</span><span class="bash"> 或</span></span><br><span class="line">nvcc -V</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-2-安装cudnn"><a href="#4-2-安装cudnn" class="headerlink" title="4.2 安装cudnn"></a>4.2 安装cudnn</h4><p><strong>以下过程需要注意版本号</strong></p>
+<p>到<a target="_blank" rel="noopener" href="https://developer.nvidia.com/rdp/cudnn-download">官网</a>下载cudnn（需注册）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">tar -zxvf cudnn-*    # (仅)此处*号用tab补全即可 就是下载的包的名称</span><br><span class="line"></span><br><span class="line">sudo cp cuda/include/cudnn.h /usr/local/cuda/include</span><br><span class="line">sudo cp cuda/lib64/libcudnn* /usr/local/cuda/lib64</span><br><span class="line">sudo chmod a+r /usr/local/cuda/include/cudnn.h</span><br><span class="line">sudo chmod a+r /usr/local/cuda/lib64/libcudnn*</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 查看cudnn版本</span></span><br><span class="line">cat /usr/local/cuda/include/cudnn.h | grep CUDNN_MAJOR -A 2</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-安装部署kubernetes-K8S"><a href="#5-安装部署kubernetes-K8S" class="headerlink" title="5.安装部署kubernetes(K8S)"></a>5.安装部署kubernetes(K8S)</h3><h4 id="5-1-安装kubeadm-kubelet-kubectl"><a href="#5-1-安装kubeadm-kubelet-kubectl" class="headerlink" title="5.1 安装kubeadm kubelet kubectl"></a>5.1 安装kubeadm kubelet kubectl</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get update &amp;&amp; sudo apt-get install -y ca-certificates curl software-properties-common apt-transport-https curl</span><br><span class="line"></span><br><span class="line">curl -s https://mirrors.aliyun.com/kubernetes/apt/doc/apt-key.gpg | sudo apt-key add -</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> tee: 读取标准输入的数据 并将其内容输出成文件; cat也可</span></span><br><span class="line">sudo tee /etc/apt/sources.list.d/kubernetes.list &lt;&lt;EOF </span><br><span class="line">deb https://mirrors.aliyun.com/kubernetes/apt/ kubernetes-xenial main</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">sudo apt-get update</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 查看可安装版本 查看kubectl的即可 三个工具版本需一致 (同查看nvidia-docker命令相同)</span></span><br><span class="line">apt-cache madison kubectl</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 安装指定版本的 kubeadm kubelet kubectl (安装最新版不加版本号即可 不推荐)</span></span><br><span class="line">sudo apt install kubelet=1.15.12-00 kubeadm=1.15.12-00 kubectl=1.15.12-00</span><br><span class="line">sudo apt-mark hold kubelet kubeadm kubectl</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 查看是否安装成功</span></span><br><span class="line">kubectl version</span><br></pre></td></tr></table></figure>
+
+<h4 id="5-2-禁用swap分区"><a href="#5-2-禁用swap分区" class="headerlink" title="5.2 禁用swap分区"></a>5.2 禁用swap分区</h4><p><strong>必须做这一步，否则无法初始化master节点</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 临时关闭 重启后就无效了</span></span><br><span class="line">sudo swapoff -a</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 持续化禁用</span></span><br><span class="line">sudo vim /etc/fstab</span><br><span class="line"><span class="meta">#</span><span class="bash"> 注释掉 /swapfile 字样所在行</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="5-3-初始化master节点"><a href="#5-3-初始化master节点" class="headerlink" title="5.3 初始化master节点"></a>5.3 初始化master节点</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 注:</span> </span><br><span class="line"><span class="meta">#</span><span class="bash"> 这里使用了非默认的CIDR（172.16.0.0/16）防止与局域网网段冲突 用10.244.0.0/16之类也可</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> --image-repository: 国内用阿里云流畅些 可不用</span></span><br><span class="line">sudo kubeadm init --pod-network-cidr 172.16.0.0/16 --image-repository registry.cn-hangzhou.aliyuncs.com/google_containers</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 完成之后执行以下命令 (系统也有提示)</span></span><br><span class="line">mkdir -p $HOME/.kube</span><br><span class="line">sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config</span><br><span class="line">sudo chown $(id -u):$(id -g) $HOME/.kube/config</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 记录好你自己的加入工作节点的命令和token, 我的输出结果如下:</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 记录你自己电脑的输出!!! 这只是例子(下同)</span></span><br><span class="line">kubeadm join 192.168.1.101:6443 --token 8evfdy.hl9yvreluqrle6vr \</span><br><span class="line">    --discovery-token-ca-cert-hash sha256:7f619150f8b5c7c97a56f8b48f6b1344d16a2247fe57d02c74eb6583c1e11908</span><br></pre></td></tr></table></figure>
+
+<h4 id="5-4-安装网络插件"><a href="#5-4-安装网络插件" class="headerlink" title="5.4 安装网络插件"></a>5.4 安装网络插件</h4><p>本文选择安装calico，你可以搜索“Kubernetes网络插件对比分析”选择合适的网络插件。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 如果下载文件失败可以访问网址获取内容</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> ubuntu-server没有图形界面 可使用scp命令  或mobaXterm(很方便)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 同样可以访问官网查询版本</span></span><br><span class="line">wget https://docs.projectcalico.org/v3.13/manifests/calico.yaml</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改 CALICO_IPV4POOL_CID 与上文(172.16.0.0/16)对应</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> vim命令模式下搜索方法: 输入/CALICO_IPV4POOL_CID回车 按n跳转至下一个结果 N反之</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 防止与主机所在的局域网网段冲突</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 安装calico</span></span><br><span class="line">kubectl apply -f calico.yaml</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 查看pods</span></span><br><span class="line">kubectl get pods -A</span><br></pre></td></tr></table></figure>
+
+<h4 id="5-5-加入工作节点"><a href="#5-5-加入工作节点" class="headerlink" title="5.5 加入工作节点"></a>5.5 加入工作节点</h4><p>将你的另一台主机作为工作节点加入到k8s集群（就是5.3节的命令）：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">kubeadm join 192.168.1.101:6443 --token 8zpuf4.3m2gm7o8ahlqf58u \</span><br><span class="line">    --discovery-token-ca-cert-hash sha256:673a4120d7ddfa7c4e5d04f90f7c128629c20ffb4c0024160f2420f4eecb</span><br></pre></td></tr></table></figure>
+
+<p><strong>如果token过期，在主节点执行如下命令获取新的token</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 若不输入&lt;token&gt; 系统会给一个随机产生的值</span></span><br><span class="line">kubeadm token create &lt;token&gt;</span><br></pre></td></tr></table></figure>
+
+<h4 id="5-6-允许master部署-污点"><a href="#5-6-允许master部署-污点" class="headerlink" title="5.6 允许master部署(污点)"></a>5.6 允许master部署(污点)</h4><p><strong>如果你只有一台主机，只能在master部署了。</strong>为什么k8s默认禁止master部署？[<a target="_blank" rel="noopener" href="https://kubernetes.io/zh/docs/home/">官方文档</a>]</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 允许master节点部署 一般只用这个就OK</span></span><br><span class="line">kubectl taint nodes --all node-role.kubernetes.io/master-</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 若不允许调度 第一个master是你的主机名</span></span><br><span class="line">kubectl taint nodes master node-role.kubernetes.io/master=:NoSchedule</span><br></pre></td></tr></table></figure>
+
+<h3 id="6-安装Kuboard"><a href="#6-安装Kuboard" class="headerlink" title="6.安装Kuboard"></a>6.安装Kuboard</h3><p>为什么不用kubernetes dashboard？你可以搜索“kuboard和dashboard”</p>
+<p><strong>如果只有一个节点，必须允许master部署（5.6节）</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl taint nodes --all node-role.kubernetes.io/master-</span><br></pre></td></tr></table></figure>
+
+<p><strong>安装kuboard</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f https://kuboard.cn/install-script/kuboard.yaml</span><br></pre></td></tr></table></figure>
+
+<p><strong>卸载kuboard（这是卸载！！！）</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl delete -f https://kuboard.cn/install-script/kuboard.yaml</span><br></pre></td></tr></table></figure>
+
+<p><strong>获取token</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 获取 user token</span></span><br><span class="line">kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep kuboard-user | awk &#x27;&#123;print $1&#125;&#x27;)</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 例 我的token</span></span><br><span class="line">eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJrdWJvYXJkLXVzZXItdG9rZW4tZjluNTQiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC5uYW1lIjoia3Vib2FyZC11c2VyIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQudWlkIjoiMmIzYWNhMTItNDU4Yy00MGMwLWEwMTYtZGFlMDU3MWUyNDNhIiwic3ViIjoic3lzdGVtOnNlcnZpY2VhY2NvdW50Omt1YmUtc3lzdGVtOmt1Ym9hcmQtdXNlciJ9.ae6XJDXT7S-xSF6l6yca9OE3Bue9wP4eEuBTteHkI-sSOIxtI1KRyl_eQZH7Y-zHO0wtSDkgCNQhCJntJe0ws6P6lgkWvtmEHSehnVlIGM0t3aOaKLnCfenkqG6X-slGEWwRlv091-UiJs9LC_UqA_Vp1B2KiriwY0oj7DuoKGj8fHxMzQFvTOzTsZqiw9pQtrMiMP3apBBTHkq60FmZ1JnUiMBozof4uTxiafCJJ3q8v78RW2EBDshVI8Ptb9GtVENjlhcLKqWZDINjOz0bnhStQyUG0_DgCziSXcRzbilqtTnZcZS11PsSan7bQZMF3M2w5tRg5ZBINN8D6AItBQ</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 获取 viewer token</span></span><br><span class="line">kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep kuboard-viewer | awk &#x27;&#123;print $1&#125;&#x27;)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><strong>获取kuboard暴露的端口号（默认32567）</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl get svc -n kube-system</span><br></pre></td></tr></table></figure>
+
+<p><strong>访问kuboard</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">http://&lt;IP&gt;:&lt;kuboardPort&gt;</span><br><span class="line"><span class="meta">#</span><span class="bash"> 我的</span></span><br><span class="line">http://192.168.1.101:32567</span><br></pre></td></tr></table></figure>
+
+<hr>
+<p><strong>到这一步就完成了k8s平台的部署了，就可以开始部署应用了。还可以安装Helm，NFS服务、kubens等方便部署应用和管理平台。</strong></p>
+<link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Linux/" rel="tag"><i class="fa fa-tag"></i> Linux</a>
+              <a href="/tags/K8S/" rel="tag"><i class="fa fa-tag"></i> K8S</a>
+              <a href="/tags/Docker/" rel="tag"><i class="fa fa-tag"></i> Docker</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/04/26/ssh-intranet/" rel="prev" title="SSH内网穿透">
+      <i class="fa fa-chevron-left"></i> SSH内网穿透
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/04/26/cat-ubuntu-info/" rel="next" title="Ubuntu下查看软硬件信息">
+      Ubuntu下查看软硬件信息 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F"><span class="nav-number">1.</span> <span class="nav-text">1.安装配置操作系统</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-1-%E5%B7%A5%E5%85%B7%E5%87%86%E5%A4%87"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 工具准备</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-2-%E5%AE%89%E8%A3%85%E7%B3%BB%E7%BB%9F"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 安装系统</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-3-%E6%8D%A2%E6%BA%90%EF%BC%88%E5%A6%82%E6%9E%9C%E4%B9%8B%E5%89%8D%E6%B2%A1%E6%8D%A2%EF%BC%89"><span class="nav-number">1.3.</span> <span class="nav-text">1.3 换源（如果之前没换）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-4-%E9%85%8D%E7%BD%AEopenssh-server"><span class="nav-number">1.4.</span> <span class="nav-text">1.4 配置openssh-server</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%AE%89%E8%A3%85docker-ce"><span class="nav-number">2.</span> <span class="nav-text">2.安装docker-ce</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-%E5%8D%B8%E8%BD%BD%E6%97%A7%E7%89%88%E6%9C%ACdocker"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 卸载旧版本docker</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-%E5%AE%89%E8%A3%85docker"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 安装docker</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3-%E9%AA%8C%E8%AF%81docker%E6%98%AF%E5%90%A6%E5%AE%89%E8%A3%85%E6%88%90%E5%8A%9F"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 验证docker是否安装成功</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-4-docker%E6%8D%A2%E6%BA%90%E5%8F%8A%E9%85%8D%E7%BD%AE"><span class="nav-number">2.4.</span> <span class="nav-text">2.4 docker换源及配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-5-%E5%8D%B8%E8%BD%BDdocker"><span class="nav-number">2.5.</span> <span class="nav-text">2.5 卸载docker</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%AE%89%E8%A3%85nvidia-docker%EF%BC%88%E8%8B%A5%E9%9C%80%E7%94%A8%E6%98%BE%E5%8D%A1%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">3.安装nvidia-docker（若需用显卡）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-1-%E5%8D%B8%E8%BD%BD%E6%97%A7%E7%89%88%E6%9C%ACnvidia-docker"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 卸载旧版本nvidia-docker</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-2-%E5%AE%89%E8%A3%85nvidia-docker"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 安装nvidia-docker</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-3-%E9%85%8D%E7%BD%AE%E6%98%BE%E5%8D%A1"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 配置显卡</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-4-%E5%AE%89%E8%A3%85%E6%98%BE%E5%8D%A1%E9%A9%B1%E5%8A%A8"><span class="nav-number">3.4.</span> <span class="nav-text">3.4 安装显卡驱动</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E7%A7%8D%E6%96%B9%E6%B3%95"><span class="nav-number">3.4.1.</span> <span class="nav-text">第一种方法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E7%A7%8D%E6%96%B9%E6%B3%95"><span class="nav-number">3.4.2.</span> <span class="nav-text">第二种方法</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E5%AE%89%E8%A3%85cuda%E5%92%8Ccudnn%EF%BC%88%E4%B9%9F%E6%98%AF%E7%94%A8%E6%98%BE%E5%8D%A1%E6%89%8D%E8%A3%85%EF%BC%89"><span class="nav-number">4.</span> <span class="nav-text">4.安装cuda和cudnn（也是用显卡才装）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#4-1-CUDA"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 CUDA</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-2-%E5%AE%89%E8%A3%85cudnn"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 安装cudnn</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2kubernetes-K8S"><span class="nav-number">5.</span> <span class="nav-text">5.安装部署kubernetes(K8S)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#5-1-%E5%AE%89%E8%A3%85kubeadm-kubelet-kubectl"><span class="nav-number">5.1.</span> <span class="nav-text">5.1 安装kubeadm kubelet kubectl</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-2-%E7%A6%81%E7%94%A8swap%E5%88%86%E5%8C%BA"><span class="nav-number">5.2.</span> <span class="nav-text">5.2 禁用swap分区</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-3-%E5%88%9D%E5%A7%8B%E5%8C%96master%E8%8A%82%E7%82%B9"><span class="nav-number">5.3.</span> <span class="nav-text">5.3 初始化master节点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-4-%E5%AE%89%E8%A3%85%E7%BD%91%E7%BB%9C%E6%8F%92%E4%BB%B6"><span class="nav-number">5.4.</span> <span class="nav-text">5.4 安装网络插件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-5-%E5%8A%A0%E5%85%A5%E5%B7%A5%E4%BD%9C%E8%8A%82%E7%82%B9"><span class="nav-number">5.5.</span> <span class="nav-text">5.5 加入工作节点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-6-%E5%85%81%E8%AE%B8master%E9%83%A8%E7%BD%B2-%E6%B1%A1%E7%82%B9"><span class="nav-number">5.6.</span> <span class="nav-text">5.6 允许master部署(污点)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-%E5%AE%89%E8%A3%85Kuboard"><span class="nav-number">6.</span> <span class="nav-text">6.安装Kuboard</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="xTang"
+      src="/images/cxy.png">
+  <p class="site-author-name" itemprop="name">xTang</p>
+  <div class="site-description" itemprop="description">分享编程知识，记录心得感悟</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/xtangyes" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;xtangyes" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:farwalking@163.com" title="E-Mail → mailto:farwalking@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xTang</span>
+</div>
+  <div class="powered-by">2021年04月26日
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  <script defer src="/lib/three/three.min.js"></script>
+    <script defer src="/lib/three/three-waves.min.js"></script>
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
